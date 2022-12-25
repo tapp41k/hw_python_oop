@@ -2,7 +2,7 @@
     отвечающий за обработку и вывод данных для разных видов тренеровок:
     Бега, Спортивной ходьбы и Плаванья"""
 from dataclasses import dataclass, asdict
-from typing import TypedDict
+from typing import Type
 
 
 @dataclass
@@ -38,7 +38,7 @@ class Training:
 
     LEN_STEP: float = 0.65
     M_IN_KM: int = 1000
-    DURATION_MIN: float = 60
+    MIN_IN_H: float = 60
 
     def __init__(self,
                  action: int,
@@ -86,7 +86,7 @@ class Running(Training):
         return ((self.CALORIES_MEAN_SPEED_MULTIPLIER * self.get_mean_speed()
                 + self.CALORIES_MEAN_SPEED_SHIFT)
                 * self.weight / self.M_IN_KM
-                * (self.duration * (self.duration * self.DURATION_MIN)))
+                * (self.duration * self.MIN_IN_H))
 
 
 class SportsWalking(Training):
@@ -104,14 +104,17 @@ class SportsWalking(Training):
         super().__init__(action, duration, weight)
         self.height = height
 
-    CALORIES_COEF1 = 0.035
-    CALORIES_COEF2 = 0.029
+    CALORIES_SPEED_HEIGHT_MULTIPLIER = 0.029
+    CALORIES_WEIGHT_MULTIPLIER = 0.035
+    KMH_IN_MSEC = 0.278
+    CM_IN_M = 100
 
     def get_spent_calories(self) -> float:
-        return ((self.CALORIES_COEF1 * self.weight
-                + ((self.get_mean_speed() * 1000 / 3600)**2 / self.height)
-                * self.CALORIES_COEF2 * self.weight)
-                * (self.duration * (self.duration * self.DURATION_MIN)))
+        return ((self.CALORIES_WEIGHT_MULTIPLIER * self.weight
+                 + ((self.get_mean_speed() * self.KMH_IN_MSEC)**2
+                    / (self.height / self.CM_IN_M))
+                 * self.CALORIES_SPEED_HEIGHT_MULTIPLIER * self.weight)
+                * (self.duration * self.MIN_IN_H))
 
 
 class Swimming(Training):
@@ -150,15 +153,13 @@ class Swimming(Training):
 def read_package(workout_type: str, data: list) -> Training:
     """Прочитать данные полученные от датчиков.
         Проверить наличие вида активности в словаре."""
-    Workouts = TypedDict('Workouts',
-                         {'SWM': Training, 'RUN': Training, 'WLK': Training})
-    workouts: Workouts = {
+    training_types: dict[str, Type[Training]] = {
         'SWM': Swimming,
         'RUN': Running,
         'WLK': SportsWalking
     }
-    if workout_type in workouts:
-        return workouts[workout_type](*data)
+    if workout_type in training_types:
+        return training_types[workout_type](*data)
     else:
         raise TypeError('Вид активности не определен')
 
