@@ -2,7 +2,7 @@
     отвечающий за обработку и вывод данных для разных видов тренеровок:
     Бега, Спортивной ходьбы и Плаванья"""
 from dataclasses import dataclass, asdict
-from typing import Type
+from typing import Type, ClassVar, List
 
 
 @dataclass
@@ -15,14 +15,15 @@ class InfoMessage:
     speed: float
     calories: float
 
+    INF_MESSAGE: ClassVar[str] = ('Тип тренировки: {training_type}; '
+                                  'Длительность: {duration:.3f} ч.; '
+                                  'Дистанция: {distance:.3f} км; '
+                                  'Ср. скорость: {speed:.3f} км/ч; '
+                                  'Потрачено ккал: {calories:.3f}.')
+
     def get_message(self) -> str:
         '''Вывести информационное сообщение о результате тренировки.'''
-        INF_MESSAGE = ('Тип тренировки: {training_type}; '
-                       'Длительность: {duration:.3f} ч.; '
-                       'Дистанция: {distance:.3f} км; '
-                       'Ср. скорость: {speed:.3f} км/ч; '
-                       'Потрачено ккал: {calories:.3f}.')
-        return INF_MESSAGE.format(**asdict(self))
+        return self.INF_MESSAGE.format(**asdict(self))
 
 
 class Training:
@@ -65,7 +66,7 @@ class Training:
 
     def show_training_info(self) -> InfoMessage:
         """Вернуть информационное сообщение о выполненной тренировке."""
-        return InfoMessage(self.__class__.__name__,
+        return InfoMessage(type(self).__name__,
                            self.duration,
                            self.get_distance(),
                            self.get_mean_speed(),
@@ -148,7 +149,7 @@ class Swimming(Training):
                 * self.CALORIES_COEF2 * self.weight * self.duration)
 
 
-def read_package(workout_type: str, data: list[int]) -> Training:
+def read_package(workout_type: str, data: List[int]) -> Training:
     """Прочитать данные полученные от датчиков.
         Проверить наличие вида активности в словаре."""
     training_types: dict[str, Type[Training]] = {
