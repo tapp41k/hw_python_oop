@@ -2,7 +2,7 @@
     отвечающий за обработку и вывод данных для разных видов тренеровок:
     Бега, Спортивной ходьбы и Плаванья"""
 from dataclasses import dataclass, asdict
-from typing import Type, ClassVar
+from typing import Type
 
 
 @dataclass
@@ -15,15 +15,14 @@ class InfoMessage:
     speed: float
     calories: float
 
-    INF_MESSAGE: ClassVar[str] = ('Тип тренировки: {training_type}; '
-                                  'Длительность: {duration:.3f} ч.; '
-                                  'Дистанция: {distance:.3f} км; '
-                                  'Ср. скорость: {speed:.3f} км/ч; '
-                                  'Потрачено ккал: {calories:.3f}.')
-
     def get_message(self) -> str:
         '''Вывести информационное сообщение о результате тренировки.'''
-        return self.INF_MESSAGE.format(**asdict(self))
+        INF_MESSAGE = ('Тип тренировки: {training_type}; '
+                       'Длительность: {duration:.3f} ч.; '
+                       'Дистанция: {distance:.3f} км; '
+                       'Ср. скорость: {speed:.3f} км/ч; '
+                       'Потрачено ккал: {calories:.3f}.')
+        return INF_MESSAGE.format(**asdict(self))
 
 
 class Training:
