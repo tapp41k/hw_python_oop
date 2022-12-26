@@ -94,6 +94,11 @@ class SportsWalking(Training):
         height, float - рост пользователя.
         Так же переопределяется метод расчета калорий."""
 
+    CALORIES_SPEED_HEIGHT_MULTIPLIER = 0.029
+    CALORIES_WEIGHT_MULTIPLIER = 0.035
+    KMH_IN_MSEC = 0.278
+    CM_IN_M = 100
+
     def __init__(self,
                  action: int,
                  duration: float,
@@ -102,11 +107,6 @@ class SportsWalking(Training):
                  ) -> None:
         super().__init__(action, duration, weight)
         self.height = height
-
-    CALORIES_SPEED_HEIGHT_MULTIPLIER = 0.029
-    CALORIES_WEIGHT_MULTIPLIER = 0.035
-    KMH_IN_MSEC = 0.278
-    CM_IN_M = 100
 
     def get_spent_calories(self) -> float:
         return ((self.CALORIES_WEIGHT_MULTIPLIER * self.weight
